@@ -17,8 +17,13 @@ private:
     std::vector<T> orig_arr;
     int size;
 
+    T lowbit(int index) const
+    {
+        return index & -index;
+    }
+
 public:
-    MinFenwickTree(const std::vector<int>& arr);
+    MinFenwickTree(const std::vector<T>& arr);
 
     void update(int idx, T val);
 

@@ -1,3 +1,4 @@
+#include <iostream>
 #include "FenwickTree.h"
 
 template<typename T, bool isReversed>
@@ -18,14 +19,14 @@ void FenwickTree<T, isReversed>::init(const std::vector<T>& arr)
 {
     for (int i = 1; i <= this->size; i++)
     {
-        this->tree[i] = arr[i - 1];
+        this->tree[i - 1] = arr[i - 1];
         
         if constexpr (isReversed)
         {
             int r = i + lowbit(i) - 1; // right index
-            for (int j = i + 1; j <= r && j <= n; j++)
+            for (int j = i + 1; j <= r && j <= this->size; j++)
             {
-                this->tree[i] = std::min(tree[i], arr[j - 1]);
+                this->tree[i - 1] = std::min(tree[i - 1], arr[j - 1]);
             }
         }
         else
@@ -33,7 +34,7 @@ void FenwickTree<T, isReversed>::init(const std::vector<T>& arr)
             int l = i - lowbit(i) + 1; // left index
             for (int j = l; j < i; j++)
             {
-                this->tree[i] = std::min(tree[i], arr[j - 1]);
+                this->tree[i - 1] = std::min(tree[i - 1], arr[j - 1]);
             }
         }
     }
@@ -45,7 +46,7 @@ T FenwickTree<T, isReversed>::get(int idx) const {
 }
 
 template<typename T, bool isReversed>
-void FenwickTree<T, isReversed>::set(int idx, T val, const std::vector<T>& orig_arr)
+void FenwickTree<T, isReversed>::set(int idx, T val, std::vector<T>& orig_arr)
 {
     if (idx < 1 || idx > this->size) return;
     
@@ -124,3 +125,20 @@ T FenwickTree<T, isReversed>::query(int idx)
 
     return res;
 }
+
+template<typename T, bool isReversed>
+void FenwickTree<T, isReversed>::print()
+{
+    for (int i = 0; i < this->size; i++)
+    {
+        std::cout << tree[i] << ", ";
+    }
+    std::cout << "\n";
+}
+
+template class FenwickTree<int, true>;
+template class FenwickTree<int, false>;
+template class FenwickTree<float, true>;
+template class FenwickTree<float, false>;
+template class FenwickTree<double, true>;
+template class FenwickTree<double, false>;

@@ -24,8 +24,10 @@ public:
     
     void init(const std::vector<T>& arr);
     T get(int idx) const;
-    void set(int idx, T val, const std::vector<T>& orig_arr);
+    void set(int idx, T val, std::vector<T>& orig_arr);
     T query(int idx);
+
+    void print();
 };
 
 #endif // FENWICK_TREE_H
