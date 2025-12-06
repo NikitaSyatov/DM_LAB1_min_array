@@ -31,9 +31,6 @@ T MinFenwickTree<T>::query(int l, int r) // 0-indexing
     l++; r++; // transform to 1-indexing
     T res = T_Max;
 
-    bit.print();
-    bit_reversed.print();
-
     // move to right
     int i = l;
     while (i <= r) {

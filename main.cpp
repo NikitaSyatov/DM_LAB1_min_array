@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "MinFenwickTree.h"
+#include "RMQ.h"
 
 int main()
 {
@@ -10,6 +11,10 @@ int main()
     MinFenwickTree<int> ftree(arr);
 
     std::cout << ftree.query(2, 6) << std::endl;
+
+    RMQ<int> rmq(arr);
+
+    std::cout << rmq.query(2, 6) << std::endl;
 
     return 0;
 }
