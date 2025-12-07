@@ -17,7 +17,7 @@ private:
     std::vector<T> orig_arr;
     int size;
 
-    T lowbit(int index) const
+    int lowbit(int index) const
     {
         return index & -index;
     }

@@ -18,24 +18,28 @@ template<typename T, bool isReversed>
 void FenwickTree<T, isReversed>::init(const std::vector<T>& arr)
 {
     for (int i = 1; i <= this->size; i++)
-    {
-        this->tree[i - 1] = arr[i - 1];
-        
+    {   
         if constexpr (isReversed)
         {
-            int r = i + lowbit(i) - 1; // right index
-            for (int j = i + 1; j <= r && j <= this->size; j++)
+            int r = i + lowbit(i) - 1;
+            T min_val = T_Max;
+
+            for (int j = i; j <= r; j++)
             {
-                this->tree[i - 1] = std::min(tree[i - 1], arr[j - 1]);
+                min_val = std::min(min_val, arr[j - 1]);
             }
+            this->tree[i] = min_val;
         }
         else
         {
-            int l = i - lowbit(i) + 1; // left index
-            for (int j = l; j < i; j++)
+            int l = i - lowbit(i) + 1;
+            T min_val = T_Max;
+
+            for (int j = l; j <= i; j++)
             {
-                this->tree[i - 1] = std::min(tree[i - 1], arr[j - 1]);
+                min_val = std::min(min_val, arr[j - 1]);
             }
+            this->tree[i] = min_val;
         }
     }
 }

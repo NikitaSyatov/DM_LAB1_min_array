@@ -13,7 +13,7 @@ private:
     std::vector<T> tree;
     int size;
 
-    T lowbit(int index) const
+    int lowbit(int index) const
     {
         return index & -index;
     }

@@ -12,9 +12,7 @@
 #include "MinFenwickTree.h"
 #include "RMQ.h"
 
-void userMode(std::ofstream& outFile) {
-    // std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    
+void userMode() {    
     std::cout << "Print array (elements, delimeter - space)" << std::endl;
 
     std::string line;
@@ -35,11 +33,10 @@ void userMode(std::ofstream& outFile) {
     std::cout << "Your array:" << std::endl;
     for (size_t i = 0; i < arr.size(); ++i) {
         std::cout << arr[i];
-        if (i < arr.size() - 1) std::cout << ", ";
+        if (i < arr.size() - 1) std::cout << " ";
     }
     std::cout << "\n\n";
     
-    // Создание структур данных
     MinFenwickTree<double> ftree(arr);
     RMQ<double> rmq(arr);
     
@@ -52,7 +49,7 @@ void userMode(std::ofstream& outFile) {
         if (!(std::cin >> l >> r)) {
             std::cin.clear();
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            std::cout << "Ошибка ввода! Пожалуйста, введите два числа.\n";
+            std::cout << "ERROR | Please, enter 2 numbers\n";
             continue;
         }
         
@@ -84,7 +81,7 @@ void userMode(std::ofstream& outFile) {
     }
 }
 
-void autoMode(std::ofstream& outFile)
+void autoMode(std::ofstream& outFile_fenwick, std::ofstream& outFile_rmq)
 {
     std::cout << "=== AUTO MODE ===\n";
     
@@ -121,9 +118,6 @@ void autoMode(std::ofstream& outFile)
         }
         break;
     }
-
-    std::cout << "Choose mode: (1 - Fenwick, 2 - RMQ)" << std::endl;
-    std::cin >> struct_mode;
     
     std::cout << "Max length array: " << N << "\n";
     std::cout << "Iteration step: " << step << "\n\n";
@@ -133,10 +127,12 @@ void autoMode(std::ofstream& outFile)
     std::uniform_real_distribution<double> dist(0.0, 1000.0);
     
     std::cout << std::fixed << std::setprecision(6);
-    outFile << std::fixed << std::setprecision(6);
+    outFile_fenwick << std::fixed << std::setprecision(6);
+    outFile_rmq << std::fixed << std::setprecision(6);
     
     std::cout << "\n" << std::string(80, '-') << "\n";
-    std::cout << std::setw(10) << "Size" 
+    std::cout << std::setw(10) << "Struct"
+              << std::setw(10) << "Size" 
               << std::setw(15) << "Time" << "\n";
     std::cout << std::string(80, '-') << "\n";
     
@@ -151,47 +147,35 @@ void autoMode(std::ofstream& outFile)
         int r = idxDist(gen);
         if (l > r) std::swap(l, r);
 
-        double ftreeResult;
-        double rmqResult;
-
-        if (struct_mode == 1)
-        {
-            auto start = std::chrono::high_resolution_clock::now();
-            MinFenwickTree<double> ftree(arr);
-            double ftreeResult = ftree.query(l, r);
-            RMQ<double> rmq(arr);
-            double rmqResult = rmq.query(l, r);
-            auto End = std::chrono::high_resolution_clock::now();
-            auto Time = std::chrono::duration_cast<std::chrono::microseconds>(End - start).count();
-            
-            std::cout << std::setw(10) << size 
-                  << std::setw(15) << Time << "\n";
-            outFile << std::setw(10) << size 
-                    << std::setw(15) << Time << "\n";
-        }
-        else if (struct_mode == 2)
-        {
-            auto start = std::chrono::high_resolution_clock::now();
-            MinFenwickTree<double> ftree(arr);
-            double ftreeResult = ftree.query(l, r);
-            RMQ<double> rmq(arr);
-            double rmqResult = rmq.query(l, r);
-            auto rmqEnd = std::chrono::high_resolution_clock::now();
-            auto Time = std::chrono::duration_cast<std::chrono::microseconds>(rmqEnd - start).count();
+        auto FT_Start = std::chrono::high_resolution_clock::now();
+        MinFenwickTree<double> ftree(arr);
+        double ftreeResult = ftree.query(l, r);
+        auto FT_End = std::chrono::high_resolution_clock::now();
+        auto FT_Time = std::chrono::duration_cast<std::chrono::microseconds>(FT_End - FT_Start).count();
         
-            std::cout << std::setw(10) << size 
-                  << std::setw(15) << Time << "\n";
-            outFile << std::setw(10) << size 
-                    << std::setw(15) << Time << "\n";
-        }
-        else
-        {
-            std::cout << "ERROR | uncorrect struct mode: struct mode is 1(Fenwick) or 2(RMQ)" << std::endl;
-        }
+        auto RMQ_Start = std::chrono::high_resolution_clock::now();
+        RMQ<double> rmq(arr);
+        double rmqResult = rmq.query(l, r);
+        auto RMQ_End = std::chrono::high_resolution_clock::now();
+        auto RMQ_Time = std::chrono::duration_cast<std::chrono::microseconds>(RMQ_End - RMQ_Start).count();
+
+        std::cout << std::setw(10) << "Fenwick" << std::setw(10) << size 
+                << std::setw(15) << FT_Time << "\n";
+        std::cout << std::setw(10) << "RMQ" << std::setw(10) << size 
+                << std::setw(15) << RMQ_Time << "\n";
+        outFile_fenwick << std::setw(10) << size 
+                << std::setw(15) << FT_Time << "\n";
+        outFile_rmq << std::setw(10) << size 
+                    << std::setw(15) << RMQ_Time << "\n";
+
         bool resultsMatch = std::abs(ftreeResult - rmqResult) < 1e-9;
         double difference = std::abs(ftreeResult - rmqResult);
         
         if (!resultsMatch) {
+            std::cout << "array:" << std::endl;
+            for (auto item : arr)
+                std::cout << item << " ";
+            std::cout << "\n";
             std::cerr << "  ERROR | Results is different! Query: [" << l << ", " << r << "], "
                     << "FT=" << ftreeResult << ", RMQ=" << rmqResult << "\n";
         }
@@ -209,8 +193,9 @@ void printHelp(const char* programName) {
 }
 
 int main(int argc, char* argv[]) {
-    std::ofstream outFile("results.txt", std::ios::trunc);
-    if (!outFile.is_open()) {
+    std::ofstream outFile_rmq("results_rmq.txt", std::ios::trunc);
+    std::ofstream outFile_fenwick("results_fenwick.txt", std::ios::trunc);
+    if (!outFile_rmq.is_open() || !outFile_fenwick.is_open()) {
         std::cerr << "ERROR | File results.txt does not exist\n";
         return 1;
     }
@@ -218,7 +203,8 @@ int main(int argc, char* argv[]) {
     if (argc != 2) {
         std::cerr << "ERROR | Uncorrect mode\n\n";
         printHelp(argv[0]);
-        outFile.close();
+        outFile_rmq.close();
+        outFile_fenwick.close();
         return 1;
     }
     char* mode = argv[1];
@@ -227,19 +213,21 @@ int main(int argc, char* argv[]) {
         printHelp(argv[0]);
     }
     else if (strcmp(mode, "-u") == 0) {
-        userMode(outFile);
+        userMode();
     }
     else if (strcmp(mode, "-a") == 0) {
-        autoMode(outFile);
+        autoMode(outFile_fenwick, outFile_rmq);
     }
     else {
         std::cerr << "ERROR | undefined mode '" << mode << "'!\n\n";
         printHelp(argv[0]);
-        outFile.close();
+        outFile_rmq.close();
+        outFile_fenwick.close();
         return 1;
     }
     
-    outFile.close();
+    outFile_rmq.close();
+    outFile_fenwick.close();
     
     return 0;
 }
