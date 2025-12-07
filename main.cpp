@@ -84,7 +84,8 @@ void userMode(std::ofstream& outFile) {
     }
 }
 
-void autoMode(std::ofstream& outFile) {
+void autoMode(std::ofstream& outFile)
+{
     std::cout << "=== AUTO MODE ===\n";
     
     int N, step, struct_mode;
@@ -208,7 +209,7 @@ void printHelp(const char* programName) {
 }
 
 int main(int argc, char* argv[]) {
-    std::ofstream outFile("results.txt", std::ios::app);
+    std::ofstream outFile("results.txt", std::ios::trunc);
     if (!outFile.is_open()) {
         std::cerr << "ERROR | File results.txt does not exist\n";
         return 1;
@@ -229,7 +230,6 @@ int main(int argc, char* argv[]) {
         userMode(outFile);
     }
     else if (strcmp(mode, "-a") == 0) {
-        outFile << "Автоматический режим\n";
         autoMode(outFile);
     }
     else {
