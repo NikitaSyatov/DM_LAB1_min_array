@@ -5,29 +5,26 @@
 #include <limits>
 #include <algorithm>
 
-template<typename T, bool isReversed = false>
+template<typename T, bool isReversed>
 class FenwickTree
 {
 private:
     const T T_Max = std::numeric_limits<T>::max();
     std::vector<T> tree;
-    int size;
+    int n;
 
-    int lowbit(int index) const
+    inline int lowbit(int index) const
     {
         return index & -index;
     }
 
 public:
     FenwickTree(int size);
-    FenwickTree(const std::vector<T>& arr, int size);
     
-    void init(const std::vector<T>& arr);
+    void build(const std::vector<T>& arr);
     T get(int idx) const;
-    void set(int idx, T val, std::vector<T>& orig_arr);
-    T query(int idx);
 
-    void print();
+    void print() const;
 };
 
 #endif // FENWICK_TREE_H

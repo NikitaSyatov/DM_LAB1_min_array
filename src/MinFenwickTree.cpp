@@ -2,66 +2,75 @@
 #include "MinFenwickTree.h"
 
 template<typename T>
-MinFenwickTree<T>::MinFenwickTree(const std::vector<T>& arr) : 
-        bit(arr.size()), 
-        bit_reversed(arr.size()),
-        orig_arr(arr),
-        size(arr.size())
-{
-    bit.init(arr);
-    bit_reversed.init(arr);
-}
-
-template<typename T>
-void MinFenwickTree<T>::update(int idx, T val) // 0-indexing
-{
-    idx++;  // transform 1-indexing
-
-    // Update original array
-    this->orig_arr[idx - 1] = val;
+MinFenwickTree<T>::MinFenwickTree(const std::vector<T>& input) 
+        : arr(input), 
+          n(static_cast<int>(input.size())),
+          forwardTree(input.size()),
+          backwardTree(input.size())
+{     
+    if (n == 0) return;
     
-    // Update tree
-    bit.set(idx, val, this->orig_arr);
-    bit_reversed.set(idx, val, this->orig_arr);
+    // Построение деревьев
+    forwardTree.build(arr);
+    backwardTree.build(arr);
+    
+    // Для отладки выведем деревья
+    std::cout << "Forward Tree: ";
+    forwardTree.print();
+    std::cout << "Backward Tree: ";
+    backwardTree.print();
 }
 
 template<typename T>
 T MinFenwickTree<T>::query(int l, int r) // 0-indexing
 {
-    if (l < 0 || r >= size || l > r) {
-        return T_Max;
+    if (l < 0 || r >= n || l > r)
+    {
+        return std::numeric_limits<T>::max();
     }
+        
+    // Преобразуем к 1-indexed
+    l++; r++;
     
-    l++; r++; // transform to 1-indexing
-    T res = T_Max;
-
-    bit.print();
-    bit_reversed.print();
-
-    // move to right
+    T result = std::numeric_limits<T>::max();
+    
+    // Основная идея:
+    // 1. Используем обратное дерево для движения вправо от l
+    // 2. Используем прямое дерево для движения влево от r
+    
+    // Движение вправо от l (используем обратное дерево)
     int i = l;
     while (i <= r) {
-        res = std::min(res, bit_reversed.get(i));
-        i += lowbit(i);
+        int block_end = std::min(i + lowbit(i) - 1, n);
+        if (block_end <= r) {
+            // Весь блок внутри [l, r]
+            result = std::min(result, backwardTree.get(i));
+            i = block_end + 1;
+        } else {
+            // Блок выходит за правую границу
+            result = std::min(result, arr[i - 1]);
+            i++;
+        }
     }
-
+        
+    // Движение влево от r (используем прямое дерево)
     i = r;
     while (i >= l) {
-        res = std::min(res, bit.get(i));
-        i -= lowbit(i);
-    }
-
-    T expected = orig_arr[l-1];
-    for (int idx = l; idx <= r; idx++) {
-        expected = std::min(expected, orig_arr[idx-1]);
+        int block_start = i - lowbit(i) + 1;
+        if (block_start >= l) {
+            // Весь блок внутри [l, r]
+            result = std::min(result, forwardTree.get(i));
+            i = block_start - 1;
+        } else {
+            // Блок выходит за левую границу
+            result = std::min(result, arr[i - 1]);
+            i--;
+        }
     }
     
-    if (std::abs(res - expected) > 1e-9) {
-        std::cout << "ERROR! Expected: " << expected << "\n";
-    }
-    
-    return res;
+    return result;
 }
+    
 
 template class MinFenwickTree<int>;
 template class MinFenwickTree<float>;

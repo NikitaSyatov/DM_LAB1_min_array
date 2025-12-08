@@ -12,20 +12,18 @@ class MinFenwickTree
 {
 private:
     const T T_Max = std::numeric_limits<T>::max();
-    FenwickTree<T, isReversed> bit;
-    FenwickTree<T, isNotReversed> bit_reversed;
-    std::vector<T> orig_arr;
-    int size;
+    std::vector<T> arr;
+    FenwickTree<T, false> forwardTree;  // Минимумы на отрезках [i-lowbit(i)+1, i]
+    FenwickTree<T, true> backwardTree;  // Минимумы на отрезках [i, i+lowbit(i)-1]
+    int n;
 
-    int lowbit(int index) const
+    inline int lowbit(int index) const
     {
         return index & -index;
     }
 
 public:
-    MinFenwickTree(const std::vector<T>& arr);
-
-    void update(int idx, T val);
+    MinFenwickTree(const std::vector<T>& input);
 
     T query(int l, int r);
 };
